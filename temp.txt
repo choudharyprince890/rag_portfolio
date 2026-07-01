@@ -1,0 +1,32 @@
+rag-agent-portfolio/
+├── .github/                  # GitHub Actions for CI/CD pipelines
+├── data/                     # Local data storage (never commit sensitive data)
+│   ├── raw/                  # Original unprocessed documents
+│   └── processed/            # Cleaned text or metadata files
+├── config/                   # Configuration files
+│   ├── config.yaml           # App configurations (chunk size, models)
+│   └── prompts.yaml          # System prompts and agent instructions
+├── src/                      # Main source code directory
+│   ├── __init__.py
+│   ├── ingestion/            # Pipeline to process and load data
+│   │   ├── pdf_loader.py
+│   │   └── text_splitter.py
+│   ├── database/             # Vector store and database management
+│   │   ├── vector_store.py   # Chroma/Pinecone initialization
+│   │   └── db_client.py
+│   ├── retrieval/            # Search and ranking logic
+│   │   ├── retriever.py      # Standard dense retrieval
+│   │   └── reranker.py       # Cross-encoder reranking
+│   ├── llm/                  # LLM generation and API clients
+│   │   └── llm_client.py     # Wrapper for OpenAI/Anthropic/Ollama
+│   ├── agents/               # Future Agentic Workflow (Start minimal)
+│   │   ├── tools.py          # Search tools, DB tools for agents
+│   │   └── supervisor.py     # Agent routing and reasoning loop
+│   └── pipeline.py           # Core orchestrator tying modules together
+├── tests/                    # Unit and integration tests
+├── notebooks/                # Jupyter notebooks for RAG experimentation
+├── .env.example              # Template for environment variables
+├── .gitignore                # Tells Git what to ignore (e.g., .env, data/)
+├── README.md                 # Project documentation for your portfolio
+├── app.py                    # User interface (Streamlit, FastUI, or Chainlit)
+└── requirements.txt          # Python dependencies

@@ -1,0 +1,29 @@
+# # UI & Environment
+# streamlit==1.32.0
+# python-dotenv==1.0.1
+
+# # Ingestion
+# pypdf==4.1.0
+
+# # LangChain Ecosystem
+# langchain==0.1.13
+# langchain-core==0.1.33
+# langchain-openai==0.1.1
+# langchain-huggingface==0.0.3
+# langchain-chroma==0.1.1
+
+# # Local Embeddings Backend
+# sentence-transformers==2.6.1
+
+
+
+streamlit>=1.32.0
+langchain>=0.1.13
+langchain-core>=0.1.33
+langchain-community>=0.0.29
+langchain-xai>=0.0.1
+langchain-huggingface>=0.0.2
+pypdf>=4.1.0
+chromadb>=0.4.24
+sentence-transformers>=2.5.1
+python-dotenv>=1.0.1

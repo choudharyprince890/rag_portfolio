@@ -1,0 +1,12 @@
+# Python environment
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Sensitive data
+.env
+
+# Database and heavy files
+data/processed/
+.DS_Store
