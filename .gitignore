@@ -8,5 +8,5 @@ __pycache__/
 .env
 
 # Database and heavy files
-data/processed/
+# data/processed/
 .DS_Store
