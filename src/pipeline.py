@@ -1,54 +1,214 @@
-# src/pipeline.py
-import os
-from typing import Generator
-from langchain_groq import ChatGroq  # Native Groq import
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
 
-# Import the base retriever directly from your database module
-from src.database.vector_store import get_retriever
 
-# Initialize Groq at the module level
-llm = ChatGroq(
-    model="llama-3.1-8b-instant",  # Updated to the new supported model
-    api_key=os.environ.get("GROQ_API_KEY"),
-    temperature=0,
-    streaming=True
-)
+"""
+pipeline.py
 
-prompt = ChatPromptTemplate.from_template("""
-You are the professional digital twin of Prince Choudhary, an AI and Robotics Engineer. 
-Your goal is to enthusiastically and accurately represent Prince's skills, experience, and projects to hiring managers and technical recruiters.
+Simple Retrieval-Augmented Generation (RAG) pipeline.
 
-Use the following retrieved context from his resume to answer the question. 
-When discussing robotics, computer vision (like MOT or ReID algorithms), or Python development, speak with technical precision. 
-If the context does not contain the answer, do not make up information—simply state that the provided resume doesn't cover that specific detail, but highlight a related skill if applicable.
+Flow:
+    User Question
+            ↓
+      Retrieve Documents
+            ↓
+      Build Prompt
+            ↓
+        Groq LLM
+            ↓
+          Answer
+"""
 
-Context: {context}
+from src.llm.llm_client import generate_response
+from src.retrieval.retriever import retrieve_documents
+from src.memory import conversation_memory
+from src.guardrails import (is_safe,is_grounded,)
 
-Question: {question}
+# ---------------------------------------------------------------------
+# Prompt Template
+# ---------------------------------------------------------------------
+
+# SYSTEM_PROMPT = """
+# You are Prince Choudhary's AI Portfolio Assistant.
+
+# Answer ONLY using the provided context.
+
+# Guidelines:
+# - If the answer is present in the context, answer naturally.
+# - Do not make up information.
+# - If the information is unavailable, politely say you don't know.
+# - Keep responses concise and professional.
+
+# Context:
+# {context}
+
+# Question:
+# {question}
+
+# Answer:
+# """
+
+
+
+SYSTEM_PROMPT = """
+You are Prince Choudhary's AI Portfolio Assistant.
+
+Use the previous conversation whenever it helps answer follow-up questions.
+
+Rules:
+- Answer ONLY using the provided context.
+- Use the conversation history for references like:
+    "that project"
+    "it"
+    "those skills"
+- Never invent information.
+- If the answer is not in the context, say you don't know.
+
+Conversation History:
+{history}
+
+Context:
+{context}
+
+Question:
+{question}
 
 Answer:
-""")
+"""
 
-def _format_docs(docs) -> str:
-    """Helper to join retrieved documents into a single string."""
-    return "\n\n".join(doc.page_content for doc in docs)
 
-def answer_query_stream(question: str) -> Generator[str, None, None]:
+
+# ---------------------------------------------------------------------
+# Helper
+# ---------------------------------------------------------------------
+
+def _build_context(documents) -> str:
     """
-    Executes the LCEL chain and yields tokens as they arrive from Groq.
+    Combine retrieved documents into a single context string.
     """
-    # Fetch 3 chunks directly from the vector store (No reranker model needed)
-    retriever = get_retriever(top_k=3)
+
+    return "\n\n".join(doc.page_content for doc in documents)
+
+
+# ---------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------
+
+# def ask(question: str, k: int = 5) -> str:
+#     """
+#     Execute the complete RAG pipeline.
+
+#     Args:
+#         question: User's question.
+#         k: Number of chunks to retrieve.
+
+#     Returns:
+#         LLM-generated answer.
+#     """
+
+#     if not question.strip():
+#         return "Please enter a question."
+
+#     # Step 1: Retrieve relevant documents
+#     documents = retrieve_documents(question, k=k)
+
+#     # Step 2: Build context
+#     context = _build_context(documents)
+
+#     # Step 3: Build prompt
+#     prompt = SYSTEM_PROMPT.format(
+#         context=context,
+#         question=question,
+#     )
+
+#     # Step 4: Generate answer
+#     answer = generate_response(prompt)
+
+#     return answer
+
+
+def ask(question: str, k: int = 5) -> str:
+    """
+    Execute the complete RAG pipeline.
+    """
+
+    if not question.strip():
+        return "Please enter a question."
     
-    rag_chain = (
-        {"context": retriever | _format_docs, "question": RunnablePassthrough()}
-        | prompt
-        | llm
-        | StrOutputParser()
+
+    # -------------------------------
+    # Prompt Injection Guard
+    # -------------------------------
+    if not is_safe(question):
+        return (
+            "I'm sorry, but I can't process requests that attempt "
+            "to manipulate my instructions."
+        )
+
+    # --------------------------------------------------
+    # Save user message
+    # --------------------------------------------------
+
+    conversation_memory.add_user_message(question)
+
+
+    # --------------------------------------------------
+    # Get recent chat history
+    # --------------------------------------------------
+
+    history = conversation_memory.get_messages()
+
+
+    # --------------------------------------------------
+    # rerwrite the query
+    # --------------------------------------------------
+
+    # rewritten_query = rewrite_query(question, history)
+
+    # --------------------------------------------------
+    # Retrieve documents
+    # --------------------------------------------------
+
+    # documents = retrieve_documents(rewritten_query, k=k)
+
+    documents = retrieve_documents(question, k=k)
+
+    context = _build_context(documents)
+
+
+
+    # --------------------------------------------------
+    # Build prompt
+    # --------------------------------------------------
+
+    prompt = SYSTEM_PROMPT.format(
+        history=history,
+        context=context,
+        question=question,
     )
-    
-    for chunk in rag_chain.stream(question):
-        yield chunk
+
+    # --------------------------------------------------
+    # Generate answer
+    # --------------------------------------------------
+
+    # answer = generate_response(prompt)
+
+    # # --------------------------------------------------
+    # # Save assistant reply
+    # # --------------------------------------------------
+
+    # conversation_memory.add_assistant_message(answer)
+
+    # return answer
+
+    answer = generate_response(prompt)
+
+    # -------------------------------
+    # Hallucination Guard
+    # -------------------------------
+    if not is_grounded(context, answer):
+        answer = (
+            "I couldn't verify this information from my knowledge base."
+        )
+
+    conversation_memory.add_assistant_message(answer)
+
+    return answer

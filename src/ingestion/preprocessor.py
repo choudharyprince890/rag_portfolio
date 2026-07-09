@@ -1,30 +1,54 @@
+
+
+"""
+preprocessor.py
+
+Basic text preprocessing utilities.
+
+Responsibilities:
+- Remove unnecessary whitespace
+- Remove extra blank lines
+- Normalize line endings
+
+This module intentionally performs only lightweight cleaning to
+preserve the semantic meaning of the original text.
+"""
+
 import re
 
-def clean_resume_text(text: str) -> str:
+
+def clean_text(text: str) -> str:
     """
-    Cleans and normalizes extracted resume text for better chunking.
-    
+    Clean and normalize text.
+
+    Operations:
+    - Normalize line endings
+    - Remove trailing spaces
+    - Collapse multiple blank lines
+    - Collapse repeated spaces/tabs
+    - Strip leading/trailing whitespace
+
     Args:
-        text (str): Raw text extracted from the PDF.
-        
+        text: Raw input text.
+
     Returns:
-        str: Cleaned text with normalized bullets, spacing, and sections.
+        Cleaned text.
     """
+
     if not text:
         return ""
 
-    # Standardize various PDF bullet points to a simple hyphen for consistency
-    text = re.sub(r'[\u2022\u2023\u25E6\u2043\u2219]', '-', text)
-    
-    # Compress multiple spaces or tabs into a single space to save tokens
-    text = re.compile(r'[ \t]+').sub(' ', text)
-    
-    # Remove rogue spaces trapped around newline characters
-    text = re.sub(r'\s*\n\s*', '\n', text)
-    
-    # Limit consecutive newlines to 2 (preserves major section breaks 
-    # like 'Experience' vs 'Education' without wasting context window space)
-    text = re.sub(r'\n{3,}', '\n\n', text)
-    
-    # Strip leading and trailing whitespace from the final document
+    # Normalize Windows/Mac line endings to Unix
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+
+    # Remove trailing spaces at the end of each line
+    text = re.sub(r"[ \t]+$", "", text, flags=re.MULTILINE)
+
+    # Replace multiple spaces/tabs with a single space
+    text = re.sub(r"[ \t]+", " ", text)
+
+    # Collapse 3+ blank lines into a maximum of 2
+    text = re.sub(r"\n{3,}", "\n\n", text)
+
+    # Remove leading/trailing whitespace
     return text.strip()

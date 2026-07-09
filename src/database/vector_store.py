@@ -1,52 +1,98 @@
-# src/database/vector_store.py
-import os
-from typing import List
+
+"""
+vector_store.py
+
+Handles all interactions with the Chroma vector database.
+
+Responsibilities:
+- Create a Chroma database
+- Persist embeddings
+- Load an existing database
+
+This module does NOT know where the documents came from.
+It only works with LangChain Document chunks.
+"""
+
+from pathlib import Path
+
+from langchain_chroma import Chroma
 from langchain_core.documents import Document
-from langchain_community.vectorstores import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
 
-DB_DIR = "data/processed/chroma_db"
+from src.embeddings.embedding_model import embeddings_model
 
-# Initialize the embedding model ONCE at the module level
-print("Loading Base Embedding Model into memory...")
-embeddings_model = HuggingFaceEmbeddings(
-    model_name="BAAI/bge-small-en-v1.5",
-    model_kwargs={'device': 'cpu'}, 
-    encode_kwargs={'normalize_embeddings': True} 
-)
 
-def get_embeddings_model():
-    # Return the already-loaded model
-    return embeddings_model
+# ---------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------
 
-def save_chunks_to_db(chunks: List[Document]) -> None:
-    os.makedirs(os.path.dirname(DB_DIR), exist_ok=True)
-    Chroma.from_documents(
+CHROMA_DB_PATH = Path("data/processed/chroma_db")
+COLLECTION_NAME = "portfolio"
+
+
+# ---------------------------------------------------------------------
+# Create Vector Store
+# ---------------------------------------------------------------------
+
+def create_vector_store(chunks: list[Document]) -> Chroma:
+    """
+    Create a new Chroma vector store from document chunks.
+
+    Args:
+        chunks: List of LangChain Document chunks.
+
+    Returns:
+        Chroma vector store instance.
+    """
+
+    if not chunks:
+        raise ValueError("No document chunks provided.")
+
+    CHROMA_DB_PATH.mkdir(parents=True, exist_ok=True)
+
+    vector_store = Chroma.from_documents(
         documents=chunks,
-        embedding=get_embeddings_model(),
-        persist_directory=DB_DIR
+        embedding=embeddings_model,
+        persist_directory=str(CHROMA_DB_PATH),
+        collection_name=COLLECTION_NAME,
     )
-    print(f"Successfully saved {len(chunks)} chunks to {DB_DIR}")
 
-def get_retriever(top_k: int = 3):
-    if not os.path.exists(DB_DIR):
+    return vector_store
+
+
+# ---------------------------------------------------------------------
+# Load Existing Vector Store
+# ---------------------------------------------------------------------
+
+def load_vector_store() -> Chroma:
+    """
+    Load an existing Chroma database.
+
+    Returns:
+        Chroma vector store instance.
+    """
+
+    if not CHROMA_DB_PATH.exists():
         raise FileNotFoundError(
-            f"Database not found at {DB_DIR}. Please run the ingestion pipeline first."
+            f"Vector database not found at: {CHROMA_DB_PATH}"
         )
 
-    db = Chroma(
-        persist_directory=DB_DIR,
-        embedding_function=get_embeddings_model()
+    return Chroma(
+        persist_directory=str(CHROMA_DB_PATH),
+        embedding_function=embeddings_model,
+        collection_name=COLLECTION_NAME,
     )
 
-    dynamic_fetch_k = top_k * 3 
 
-    retriever = db.as_retriever(
-        search_type="mmr", 
-        search_kwargs={
-            "k": top_k,
-            "fetch_k": dynamic_fetch_k
-        }
-    )
-    
-    return retriever
+# ---------------------------------------------------------------------
+# Utility
+# ---------------------------------------------------------------------
+
+def vector_store_exists() -> bool:
+    """
+    Check whether a persisted Chroma database exists.
+
+    Returns:
+        True if the database directory exists.
+    """
+
+    return CHROMA_DB_PATH.exists()

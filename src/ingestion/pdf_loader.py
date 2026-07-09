@@ -1,22 +1,36 @@
-from io import BytesIO
-from pypdf import PdfReader
 
-def extract_text_from_pdf(file_bytes: bytes) -> str:
+"""
+pdf_loader.py
+
+Loads PDF documents and returns a list of LangChain Document objects.
+"""
+
+from pathlib import Path
+
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_core.documents import Document
+
+
+def load_pdf(pdf_path: str | Path) -> list[Document]:
     """
-    Extracts raw text from a PDF binary stream.
-    
+    Load a PDF file.
+
     Args:
-        file_bytes (bytes): The raw bytes of the uploaded PDF file.
-        
+        pdf_path: Path to the PDF file.
+
     Returns:
-        str: The concatenated text from all pages of the PDF.
+        List of LangChain Document objects.
+
+    Raises:
+        FileNotFoundError: If the PDF does not exist.
     """
-    # Load the binary stream into a file-like object for pypdf
-    pdf_file = BytesIO(file_bytes)
-    reader = PdfReader(pdf_file)
-    
-    # Iterate through all pages, extract text, and join with no delimiter
-    # (Fallback to empty string if extract_text() returns None)
-    return "".join(
-        page.extract_text() or "" for page in reader.pages
-    )
+
+    pdf_path = Path(pdf_path)
+
+    if not pdf_path.exists():
+        raise FileNotFoundError(f"PDF file not found: {pdf_path}")
+
+    loader = PyPDFLoader(str(pdf_path))
+    documents = loader.load()
+
+    return documents
