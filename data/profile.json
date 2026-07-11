@@ -1,0 +1,118 @@
+{
+  "name": "Prince Choudhary",
+  "title": "AI / ML Engineer",
+  "tagline": "Building intelligent systems that connect data, language, and real-world impact.",
+  "location": "Indore, India",
+  "avatar": "🧑‍💻",
+  "bio": "I'm an AI/ML Engineer focused on computer vision and real-time systems — from edge-optimized deep learning pipelines running on Jetson hardware to large-scale video analytics and RAG-based applications. Over the past few years I've shipped facial tracking, industrial defect detection, geospatial mapping, and automated surveillance systems that run reliably in production, not just in notebooks.",
+
+  "contact": {
+    "email": "choudharyprince890@gmail.com",
+    "phone": "+91-8360193315",
+    "linkedin": "https://www.linkedin.com/in/prince-choudhary-b32431192/",
+    "github": "https://github.com/choudharyprince890",
+    "website": "https://princechoudhary.streamlit.app/",
+    "leetcode": "https://leetcode.com/u/Pr_Choudhary/",
+    "twitter": ""
+  },
+
+  "resume_path": "data/raw/resume.pdf",
+
+  "suggested_questions": [
+    "What's his experience with computer vision?",
+    "Tell me about the facial tracking pipeline he built",
+    "What is his profession experience?",
+    "How did he build this RAG-powered assistant?"
+  ],
+
+  "skills": [
+    {
+      "category": "Languages & Frameworks",
+      "items": ["Python", "SQL", "PyTorch", "TensorFlow", "Scikit-learn", "OpenCV", "Django", "Flask", "NumPy", "Pandas"]
+    },
+    {
+      "category": "AI / ML & Algorithms",
+      "items": ["Neural Networks", "CNN", "YOLO", "OCR", "LLM", "Clustering", "Ensemble Learning", "RAG agesnts"]
+    },
+    {
+      "category": "Optimization & Deployment",
+      "items": ["ONNX", "TensorRT", "CUDA/cuDNN", "AWS EC2", "AWS S3", "rest-API", "MediaMTX", "FFmpeg"]
+    },
+    {
+      "category": "Tools & Hardware",
+      "items": ["Git/GitHub", "Linux/Unix", "Jetson Nano", "Jetson Orin Nano"]
+    }
+  ],
+
+  "experience": [
+    {
+      "role": "ML Engineer",
+      "company": "Vinfotech, Indore",
+      "duration": "Mar 2025 - Present",
+      "description": "Engineered real-time computer vision and media streaming solutions, optimizing edge deployment pipelines for latency, cost, and throughput.",
+      "highlights": [
+        "Built a facial tracking pipeline using YOLO and MediaPipe, introducing frame filtering and hybrid cloud routing that reduced AWS Rekognition API costs by 40%.",
+        "Quantized deep learning models to ONNX for Jetson Orin Nano deployment and resolved frame drops using multithreaded RTSP ingestion buffers.",
+        "Developed an enterprise video analytics streaming pipeline using FFmpeg and MediaMTX to ingest, re-encode, and broadcast TCP camera feeds."
+      ]
+    },
+    {
+      "role": "Computer Vision Engineer",
+      "company": "Camncloud, Indore",
+      "duration": "Nov 2023 - Feb 2025",
+      "description": "Designed and deployed deep learning models for industrial automation, geospatial mapping, and automated surveillance tracking systems.",
+      "highlights": [
+        "Trained a high-speed YOLO scanner for conveyor belts, pairing it with adaptive thresholding and Gaussian image processing to boost detection accuracy by 16%.",
+        "Engineered a geospatial telemetry system that mapped satellite coordinate data to dual-camera synchronized panoramic video frames via timestamp alignment.",
+        "Created an automated trespass alert system using YOLOv8 with custom polygonal ROIs, integrating an adaptive frame skipping mechanism that reduced system load by 20%."
+      ]
+    },
+    {
+      "role": "Web Application Developer Intern",
+      "company": "SUREBOT, Bangalore",
+      "duration": "Mar 2022 - May 2022",
+      "description": "Assisted with backend architectural design and database management for enterprise resource applications.",
+      "highlights": [
+        "Developed secure, high-performance REST APIs for an HRMS platform utilizing Django REST Framework and SQL for optimized data persistence."
+      ]
+    }
+  ],
+
+  "projects": [
+    {
+      "name": "AI Portfolio Assistant",
+      "description": "A RAG-powered chatbot that answers questions about my experience, skills, and projects using a custom retrieval + reranking pipeline with guardrails.",
+      "tech": ["Python", "LangChain", "ChromaDB", "Streamlit"],
+      "link": "https://princechoudhary.streamlit.app/",
+      "featured": true
+    },
+    {
+      "name": "Real-Time Facial Tracking & Hybrid Cloud Routing",
+      "description": "A YOLO + MediaPipe facial tracking pipeline with frame filtering and hybrid cloud routing that cut AWS Rekognition API costs by 40%, deployed on Jetson Orin Nano via ONNX quantization.",
+      "tech": ["YOLO", "MediaPipe", "ONNX", "Jetson Orin Nano", "AWS Rekognition"],
+      "link": "",
+      "featured": true
+    },
+    {
+      "name": "Automated Trespass Alert System",
+      "description": "A YOLOv8-based surveillance system with custom polygonal ROIs and adaptive frame skipping, reducing system load by 20% while maintaining reliable intrusion detection.",
+      "tech": ["YOLOv8", "OpenCV", "Computer Vision"],
+      "link": "",
+      "featured": true
+    },
+    {
+      "name": "High-Speed Conveyor Belt Defect Scanner",
+      "description": "A high-speed YOLO scanner paired with adaptive thresholding and Gaussian image processing for industrial conveyor belts, improving detection accuracy by 16%.",
+      "tech": ["YOLO", "OpenCV", "Industrial Automation"],
+      "link": "",
+      "featured": false
+    },
+    {
+      "name": "Geospatial Telemetry & Panoramic Video Mapping",
+      "description": "A system that maps satellite coordinate telemetry to dual-camera synchronized panoramic video frames via precise timestamp alignment.",
+      "tech": ["Geospatial Mapping", "Computer Vision", "Python"],
+      "link": "",
+      "featured": false
+    }
+  ]
+}
